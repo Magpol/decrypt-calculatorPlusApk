@@ -38,12 +38,12 @@ https://github.com/skylot/jadx
 A very nice feature of jadx is that you can activate deobfuscation when parsing the apk. This will sometimes (often) do a pretty decent job of helping out with applications that are obfuscated when compiled.
 
 Here the apk is loaded and deobfuscated:
-![Loaded](/images/1.jpg "Loaded")
+![Loaded](/images/1.png "Loaded")
 
 What i usually do next is to just click and look at all the classes and methods. I also use the search function to search for strings that should be of interest. In this case i searched for "encrypt", "decrypt", "AES" etc etc.
 
 This looks interesting:
-![Search](/images/2.jpg "Search")
+![Search](/images/2.png "Search")
 
 So when i clicked the search result the following code showed up: 
 
@@ -59,11 +59,11 @@ aVar.mo2601d(byteArrayInputStream);
 
 To view the method EncryptUtils.m10791a() you just right-click on it and select "Goto declaration".
 
-![File](/images/3.jpg "File")
+![File](/images/3.png "File")
 
 When looking at the Class and methods i saw that this was a class responsible for encrypting and decrypting files.
 
-![Class](/images/4.jpg "Class") 
+![Class](/images/4.png "Class") 
 
 The creator of the app uses a static key "12345678" for encryption, and also uses "DES" encryption.
 
