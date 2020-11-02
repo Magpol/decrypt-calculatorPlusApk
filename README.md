@@ -1,6 +1,8 @@
 # Decrypting images hidden with **Calculator+**
 
-**Calculator+ - Photo Vault & Video Vault hide photos** is an Android application that (description from Google Play store) "..looks like a beautiful calculator, and works very well, but have a secret photo vault behind it. all hide photos will be encrypted, uninstall the app will not delete the password, ". The packagename is "eztools.calculator.photo.vault".
+**Calculator+ - Photo Vault & Video Vault hide photos** is an Android application that (description from Google Play store) "..looks like a beautiful calculator, and works very well, but have a secret photo vault behind it. all hide photos will be encrypted, uninstall the app will not delete the password, ".
+
+The packagename is "eztools.calculator.photo.vault".
 
 A user on the "Digital Forensics" discord asked if someone had a way of decrypting the images stored by the application. 
 
@@ -27,7 +29,8 @@ Now the application is saved to "base.apk" and you can start to analyse it.
 ### If you want to download the apk from internet
 
 Go to http://wwww.apkpure.com or http://www.apkmirror.com and search for the packagename "eztools.calculator.photo.vault". 
-This is kinda important as this kind of application often have multiple applications, from different publishers, that share the same name and icon.
+This is kinda important as Google playstore often have multiple applications, from different publishers, that share the same name and icon. You could end up with
+the wrong apk if you dont pay attention.
 
 ## Step 2) Analyze the apk.
 
@@ -145,7 +148,20 @@ c0mputer ~ % hexdump -C -n 80 99fc748b-c096-4f90-82d8-5814428d2894
 
 The files are encrypted (doh!). So lets decrypt them!
 
-I made a simple script based on what we saw when analysing the app in jadx. The script will decrypt all files in a provided path.
+I made a simple script based on what we saw when analysing the app in jadx:
+
+- Static key "12345678"
+- Des encryption.
+- Filename is changed to a random guid.
+
+If you want the correct filename you have to pull the db from /data/data/eztools.calculator.photo.vault/databases/cal.db (this requires a rooted device or a
+full filesystem extraction). When looking at the create statement for the photo table we can see that it stores "src_photo_path":
+
+````
+CREATE TABLE `photo` (`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `bucket_name` TEXT, `src_photo_path` TEXT, `dest_photo_path` TEXT, `thumbnail_photo_path` TEXT, `folder_id` TEXT, `blob_name` TEXT, `download_url` TEXT, `deleted` INTEGER, `sync_status` INTEGER)
+````
+
+The script will decrypt all files in a provided path. 
 
 ````
 #!/usr/bin/env python
