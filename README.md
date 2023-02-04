@@ -203,7 +203,49 @@ files/photo_encrypt/99fc748b-c096-4f90-82d8-5814428d2894.decrypted: JPEG image d
 
 There we have it. The files are decrypted.
 
-## Step 4) Final words
+## Step 4) Bruteforce the password
+
+In some cases it may be of interest to bruteforce the password regardless of the encryption algorithm.
+Luckily it is as easy as decrypting the files!
+Take a second and look at this slightly refactored code from JADX:
+
+![PersistPW](/images/5.png "PersistPW") 
+
+We can see that the password is getting hashed as MD5. It's not salted. What a surprise!
+Another surprise is that the implementation of converting MD5 digits to Hex-String is faulty.
+But we will cover that in the script, just assume it's a real MD5, haha.
+The MD5 hash is saved in two different locations, depending on your SDK.
+
+For SDK >= 30 (Android 11) it's saved in shared preferences:
+````
+/data/data/eztools.calculator.photo.vault/shared_prefs/cal_settings.xml
+````
+Content:
+````
+<string name="vault_password">81dc9bdb52d04dc2036dbd8313ed055</string>
+````
+
+For everything else it's stored in a file located at:
+````
+/sdcard/.vault/password
+````
+It holds just the hash:
+````
+81dc9bdb52d04dc2036dbd8313ed055
+````
+
+Hint: The password has to be a 4 digit number without leading 0 (1000-9999).
+
+Now just fire:
+````
+python3 bruteforce.py -H 81dc9bdb52d04dc2036dbd8313ed055
+````
+Within milliseconds you should get:
+````
+Found password: 1234
+````
+
+## Step 5) Final words
 
 As SH said: “Be brave, be curious, be determined, overcome the odds. It can be done”. 
 
