@@ -244,8 +244,90 @@ Within milliseconds you should get:
 ````
 Found password: 1234
 ````
+## Step 5) "Decrypt" videofiles
 
-## Step 5) Final words
+It came to my attention that the video files exhibit a form of cryptographic transformation different from the anticipated encryption method. Furthermore, the script I devised failed to effectively decrypt the aforementioned files.</br></br>
+So once again i did some diggin' and came up with the following function in jadx:</br></br>
+(The videofiles are in fact NOT encrypted, each byte in the file is incremented by one and then the file is saved with a random guid as filename)
+````
+public static final String getVide0(String str, String str2) {
+        int read;
+        C5484c m1765i;
+        C5455i.m1839e(str, "filePath");
+        File file = str2 != null ? new File(str2) : new File(f12793g, C5455i.m1833k(m2603j(), ".mp4"));
+        try {
+            FileInputStream fileInputStream = new FileInputStream(new File(str));
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            try {
+                byte[] bArr = new byte[8192];
+                do {
+                    read = fileInputStream.read(bArr);
+                    if (read > 0) {
+                        m1765i = C5487f.m1765i(0, read);
+                        Iterator<Integer> it = m1765i.iterator();
+                        while (it.hasNext()) {
+                            int mo1456c = ((Iterators) it).mo1456c();
+                            bArr[mo1456c] = (byte) (bArr[mo1456c] - 1);
+                        }
+                        fileOutputStream.write(bArr, 0, read);
+                        continue;
+                    }
+                } while (read > 0);
+                C5550t c5550t = C5550t.f13404a;
+                C5619b.m1387a(fileOutputStream, null);
+                C5550t c5550t2 = C5550t.f13404a;
+                C5619b.m1387a(fileInputStream, null);
+                return file.getAbsolutePath();
+            } finally {
+            }
+        } catch (IOException e) {
+            Log.m2577a(e);
+            return null;
+        }
+    }
+````
+And here's a python script that you can use to make the files valid again:
+````
+#!/usr/bin/env python
+# Decrypt videofiles from Calculator+ - https://github.com/Magpol
+import os
+import sys
+import logging
+
+def decrypt_file(file_path, output_path):
+    try:
+        with open(file_path, "rb") as file_input:
+            data = bytearray(file_input.read())
+            for i in range(len(data)):
+                data[i] = (data[i] - 1) & 0xFF
+            with open(output_path, "wb") as file_output:
+                file_output.write(data)
+            print(f"Processing: {file_path} -> {output_path} ")
+        return True
+    except IOError as e:
+        logging.error(f"Error processing file {file_path}: {e}")
+        return False
+
+def decrypt_files_in_directory(directory):
+    for root, dirs, files in os.walk(directory):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            output_path = os.path.join(root, "decrypted_" + file_name)
+            decrypt_file(file_path, output_path)
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.ERROR)
+    if len(sys.argv) != 2:
+        print(f"Usage: python decrypt_files.py <directory_path>")
+        sys.exit(1)
+    directory_path = sys.argv[1]
+    if not os.path.isdir(directory_path):
+        print(f"Error: {directory_path} is not a valid directory.")
+        sys.exit(1)
+    decrypt_files_in_directory(directory_path)
+    print("Decryption complete.")
+````
+## Step 6) Final words
 
 As SH said: “Be brave, be curious, be determined, overcome the odds. It can be done”. 
 
